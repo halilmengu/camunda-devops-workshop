@@ -1,0 +1,51 @@
+global:
+  identity:
+    auth:
+      # Disable the Identity authentication for local development
+      # it will fall back to basic-auth: demo/demo as default user
+      enabled: false
+  image:
+    tag: 8.2.5
+
+# Disable identity as part of the camunda platform core
+identity:
+  enabled: false
+
+optimize:
+  enabled: false
+
+# Reduce for Zeebe and Gateway the configured replicas and with that the required resources
+# to get it running locally
+zeebe:
+  clusterSize: 3
+  partitionCount: 3
+  replicationFactor: 3
+  pvcSize: 1Gi
+  affinity:
+    podAntiAffinity: null
+
+zeebe-gateway:
+  replicas: 1
+  affinity:
+    podAntiAffinity: null
+
+connectors:
+  enabled: false
+  inbound:
+    mode: disabled
+
+# Configure elastic search to make it running for local development
+elasticsearch:
+  replicas: 1
+  minimumMasterNodes: 1
+  # Allow no backup for single node setups
+  clusterHealthCheckParams: "wait_for_status=yellow&timeout=1s"
+
+  # Request smaller persistent volumes.
+  volumeClaimTemplate:
+    accessModes: [ "ReadWriteOnce" ]
+    storageClassName: "hostpath"
+    resources:
+      requests:
+        storage: 2Gi
+
