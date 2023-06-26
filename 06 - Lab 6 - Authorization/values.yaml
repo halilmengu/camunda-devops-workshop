@@ -1,0 +1,87 @@
+# helm install ccsm camunda-cloud/camunda-platform -f values.yaml
+global:
+  identity:
+    auth:
+      enabled: true
+      publicIssuerUrl: "http://keycloak.localhost/auth/realms/camunda-platform"
+      operate:
+        redirectUrl: "http://operate.localhost"
+      tasklist:
+        redirectUrl: "http://tasklist.localhost"
+      optimize:
+        redirectUrl: "http://optimize.localhost"
+
+zeebe:
+  affinity:
+    podAntiAffinity: null
+  clusterSize: 1
+  partitionCount: 1
+  replicationFactor: 1
+  pvcSize: 10Gi
+
+zeebe-gateway:
+  replicas: 1
+  ingress: 
+    enabled: true
+    host: "zeebe.localhost"
+
+elasticsearch:
+  imageTag: 7.16.1
+  replicas: 1
+  minimumMasterNodes: 1
+  # Allow no backup for single node setups
+  clusterHealthCheckParams: "wait_for_status=yellow&timeout=1s"
+
+operate:
+  ingress: 
+    enabled: true
+    host: "operate.localhost"
+  env: 
+   - name: CAMUNDA_OPERATE_ENTERPRISE
+     value: "true"
+
+identity:
+  enabled: true
+  ingress: 
+    enabled: true
+    host: "identity.localhost"
+  keycloak:
+    ingress:
+      enabled: true
+      ingressClassName: nginx
+      hostname: "keycloak.localhost"
+    auth:
+      adminUser: admin
+      adminPassword: admin
+  env: 
+   - name: IDENTITY_AUTH_PROVIDER_ISSUER_URL
+     value: "http://keycloak.localhost/auth/realms/camunda-platform"
+   - name: IDENTITY_URL
+     value: "http://identity.localhost"
+   - name: CAMUNDA_IDENTITY_ENTERPRISE
+     value: "true"
+
+tasklist:
+  ingress: 
+    enabled: true
+    host: "tasklist.localhost"
+  env: 
+   - name: CAMUNDA_TASKLIST_ENTERPRISE
+     value: "true"
+
+optimize:
+  enabled: false
+  ingress:
+    enabled: true
+    host: "optimize.localhost"
+
+connectors:
+  enabled: false
+
+prometheusServiceMonitor:
+  enabled: true
+  labels:
+    release: prometheus
+  scrapeInterval: 10s
+
+# helm install prometheus prometheus-community/kube-prometheus-stack --set prometheus-node-exporter.hostRootFsMount.enabled=false --set grafana.defaultDashboardsTimezone=browser
