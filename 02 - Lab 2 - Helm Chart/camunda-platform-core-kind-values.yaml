@@ -27,6 +27,9 @@ connectors:
   enabled: true
   inbound:
     mode: disabled
+  env:
+    - name: OPERATE_CLIENT_ENABLED
+      value: "false"
 
 # Configure elastic search to make it running for local development
 elasticsearch:
