@@ -4,7 +4,7 @@ metadata:
   labels:
     app: minio
   name: minio
-  namespace: manuel-dittmar # Change this value to match the namespace metadata.name
+  namespace: default # Change this value to match the namespace metadata.name
 spec:
   containers:
   - name: minio
@@ -29,7 +29,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: minio
-  namespace: manuel-dittmar
+  namespace: default
 spec:
   selector:
     app: minio

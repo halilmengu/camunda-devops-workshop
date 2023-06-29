@@ -7,7 +7,7 @@ metadata:
   labels:
     app: minio
   name: minio
-  namespace: manuel-dittmar # Change this value to match the namespace metadata.name
+  namespace: default # Change this value to match the namespace metadata.name
 spec:
   containers:
   - name: minio
@@ -32,7 +32,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: minio
-  namespace: manuel-dittmar
+  namespace: default
 spec:
   selector:
     app: minio
@@ -44,9 +44,13 @@ spec:
 
 ## Port-Forward minio
 
-kubectl port-forward svc/minio -p 9090:9090
+kubectl port-forward pod/minio 9090:9090
 
 ## Create Credentials + Bucket
+
+un: minioadmin
+
+pw: minioadmin
 
 ## Define Backup Location
 
@@ -73,7 +77,7 @@ zeebe:
   - name: ZEEBE_BROKER_DATA_BACKUP_S3_FORCEPATHSTYLEACCESS
     value: "true"
   - name: ZEEBE_BROKER_DATA_BACKUP_S3_ENDPOINT
-    value: "http://minio.manuel-dittmar.svc.cluster.local:9000"
+    value: "http://minio.default.svc.cluster.local:9000"
   - name: ZEEBE_BROKER_DATA_BACKUP_S3_ACCESSKEY
     value: "iQj4X0LD9hTM9sgyD8dx"
   - name: ZEEBE_BROKER_DATA_BACKUP_S3_SECRETKEY

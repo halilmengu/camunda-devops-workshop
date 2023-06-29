@@ -1,0 +1,72 @@
+global:
+  identity:
+    auth:
+      # Disable the Identity authentication for local development
+      # it will fall back to basic-auth: demo/demo as default user
+      enabled: false
+
+# Disable identity as part of the camunda platform core
+identity:
+  enabled: false
+
+optimize:
+  enabled: false
+
+# Reduce for Zeebe and Gateway the configured replicas and with that the required resources
+# to get it running locally
+zeebe:
+  affinity:
+    podAntiAffinity: null
+  clusterSize: 1
+  partitionCount: 1
+  replicationFactor: 1
+  pvcSize: 3Gi
+  resources:
+    requests:
+      cpu: "100m"
+      memory: "1Gi"
+    limits:
+      cpu: "512m"
+      memory: "3Gi"
+  env:
+  - name: ZEEBE_BROKER_DATA_BACKUP_STORE
+    value: "S3"
+  - name: ZEEBE_BROKER_DATA_BACKUP_S3_BUCKETNAME
+    value: "c8-backup"
+  - name: ZEEBE_BROKER_DATA_BACKUP_S3_FORCEPATHSTYLEACCESS
+    value: "true"
+  - name: ZEEBE_BROKER_DATA_BACKUP_S3_ENDPOINT
+    value: "http://minio.default.svc.cluster.local:9000"
+  - name: ZEEBE_BROKER_DATA_BACKUP_S3_ACCESSKEY
+    value: "K6VObp9bS8E1dfUDoAlu"
+  - name: ZEEBE_BROKER_DATA_BACKUP_S3_SECRETKEY
+    value: "KhLkAJ7Llw0hfpTZfzuw5Cy1dGdhTwlQhvIQz3WO"
+  - name: ZEEBE_BROKER_DATA_BACKUP_S3_REGION
+    value: "us-east-1"
+
+zeebe-gateway:
+  replicas: 1
+
+connectors:
+  enabled: true
+  inbound:
+    mode: disabled
+  env:
+    - name: OPERATE_CLIENT_ENABLED
+      value: "false"
+
+# Configure elastic search to make it running for local development
+elasticsearch:
+  replicas: 1
+  minimumMasterNodes: 1
+  # Allow no backup for single node setups
+  clusterHealthCheckParams: "wait_for_status=yellow&timeout=1s"
+
+  # Request smaller persistent volumes.
+  volumeClaimTemplate:
+    accessModes: [ "ReadWriteOnce" ]
+    storageClassName: "hostpath"
+    resources:
+      requests:
+        storage: 2Gi
+
