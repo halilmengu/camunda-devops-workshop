@@ -24,7 +24,7 @@ zeebe-gateway:
   replicas: 1
 
 connectors:
-  enabled: true
+  enabled: false
   inbound:
     mode: disabled
 
