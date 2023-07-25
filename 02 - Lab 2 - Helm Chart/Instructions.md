@@ -3,6 +3,7 @@ https://github.com/camunda/camunda-platform-helm/blob/main/kind/camunda-platform
 
 ## Start
 helm repo add camunda https://helm.camunda.io
+
 helm install camunda-platform camunda/camunda-platform -f camunda-platform-core-kind-values.yaml 
 
 ## Wait
