@@ -167,27 +167,90 @@ To add an OpenID Connect or SAML provider, select Identity Providers in the main
 
 ![Add Provider](./screenshots/identity-provider/01-add-provider.png)
 
-Below you can find an example configuration that uses Okta. To do this, we select the option Keycloak OpenID Connect from the dropdown.
+#### OIDC Example
 
-![Okta](./screenshots/identity-provider/02-okta.png)
+![Okta](./screenshots/identity-provider/oidc/02-okta.png)
 
 If you want to map profile information automatically, make sure to configure the default scope to `openid profile`.
 
 When you now want to login to one of the web applications, you can see that there is now an alternative login option that says `Login with Okta`.
 
-![Login with Okta](./screenshots/identity-provider/03-login-with-okta.png)
+![Login with Okta](./screenshots/identity-provider/oidc/03-login-with-okta.png)
 
 When now pressing on that button, you will be redirect to your Identity Provider
 
-![Okta Login page](./screenshots/identity-provider/04-okta-form.png)
+![Okta Login page](./screenshots/identity-provider/oidc/04-okta-form.png)
 
 For the first login, you will be asked to update the account information.
 
-![Update Profile](./screenshots/identity-provider/05-update-profile.png)
+![Update Profile](./screenshots/identity-provider/oidc/05-update-profile.png)
 
-As no applications are assigned to the user, you won't have access to the application. Also here it is possible to map roles to users. 
-Mapping claims to groups or roles can also be configured in Keycloak, but will not be covered in this guide.
+#### SAML Example
 
-## TODOs
-- Include Explanation how to allow only login via Identity Provider (Okta)
-- How to Configure Application in Okta
+Below, Okta will be used as an Example.
+
+First you need to create an App Integration
+
+![Create App Integration](./screenshots/identity-provider/saml/01-create-application-okta.png)
+
+Select SAML 2.0
+
+![SAML 2.0](./screenshots/identity-provider/saml/02-saml-integration-okta.png)
+
+Provide a name for your App
+
+![App Name](./screenshots/identity-provider/saml/03-app-name-okta.png)
+
+When configuring a SAML-based Identity Provider in Keycloak, you will also receive the required configuration parameters.
+
+For configuring the App Integration you need:
+- The Redirect URI (here: http://keycloak.localhost/auth/realms/camunda-platform/broker/okta/endpoint)
+- Service Provider Entity ID (here: http://keycloak.localhost/auth/realms/camunda-platform )
+
+![Keycloak Parameters](./screenshots/identity-provider/saml/04-identity-provider-keycloak.png)
+
+Those parameters now need to be used when configuring your App Integration.
+
+![General Settings](./screenshots/identity-provider/saml/05-general-saml-settings-okta.png).
+
+If you want to pass on the first name, last name and email and groups, you need to include the following attribute statements.
+
+![Attribute Statements](./screenshots/identity-provider/saml/06-attribute-statements-okta.png)
+
+After completing the app integration setup, you need to import the resulting metadata into Keycloak.
+
+![Import Metadata](./screenshots/identity-provider/saml/07-import-metadata.png)
+
+Now you can login via Okta!
+
+![Okta Login](./screenshots/identity-provider/saml/08-login-with-okta.png)
+
+Without providing the right mappers, you will be asked to update the account information manually.
+
+![Update Account Information](./screenshots/identity-provider/saml/09-update-account.png)
+
+With Identity Provider Mappers, the account information can retrieved from the attributes.
+
+Below example shows an Mapper for the lastName. You would need to perform the same for firstName and email.
+
+![lastName Mapper](./screenshots/identity-provider/saml/10-attribute-importer.png)
+
+You can also map groups to Roles. Below an example of mapping the group "Everyone" to the Role "Tasklist"
+
+![Group Mapper](./screenshots/identity-provider/saml/11-everyone-to-tasklist-mapper.png)
+
+Now everyone who is part of the Group "Everyone" is able to login to Tasklist
+
+#### Login only via Identity Provider
+
+By default, you will still have the option to login via username and password, eventhough an Identity Provider is configured. To avoid this, it is possible to adjust the authentication flow to make sure the user is redirect to the Identity Provider.
+
+Press on Actions > Configure in the Authentication Flows (Browser)
+
+![Group Mapper](./screenshots/identity-provider/idp-login-only/01-authentication-flows.png)
+
+Provide the alias of your Identity Provider as a default identity provider. 
+
+
+
+
