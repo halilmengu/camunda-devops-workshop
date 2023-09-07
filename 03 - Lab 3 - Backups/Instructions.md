@@ -26,9 +26,9 @@ Go to _Buckets_ -> create one, name it `c8-backup`
 
 Adjust the values of [`camunda-platform-backup-values.yaml`](./camunda-platform-backup-values.yaml):
 
-`ZEEBE_BROKER_DATA_BACKUP_S3_BUCKETNAME`: The name of the bucket you created.
-`ZEEBE_BROKER_DATA_BACKUP_S3_ACCESSKEY`: `accessKey` of the created credentials.
-`ZEEBE_BROKER_DATA_BACKUP_S3_SECRETKEY`: `secretKey` of the created credentials.
+* `ZEEBE_BROKER_DATA_BACKUP_S3_BUCKETNAME`: The name of the bucket you created.
+* `ZEEBE_BROKER_DATA_BACKUP_S3_ACCESSKEY`: `accessKey` of the created credentials.
+* `ZEEBE_BROKER_DATA_BACKUP_S3_SECRETKEY`: `secretKey` of the created credentials.
 
 ```shell
 helm install camunda camunda/camunda-platform -f camunda-platform-backup-values.yaml
