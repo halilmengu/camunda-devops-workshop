@@ -25,7 +25,7 @@ kubectl port-forward svc/camunda-platform-operate  8081:80
 Go to http://localhost:8081/
 
 
-login: demo / demo
+Login: demo / demo
 
 ## Deploy Diagram
 
