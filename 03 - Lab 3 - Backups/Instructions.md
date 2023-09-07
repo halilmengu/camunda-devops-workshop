@@ -12,11 +12,7 @@ kubectl port-forward pod/minio 9090:9090
 
 ## Create Credentials + Bucket
 
-Login:
-
-username: minioadmin
-
-password: minioadmin
+Login: minioadmin / minioadmin
 
 Go to _Access Keys_ -> create one, download created credentials
 
