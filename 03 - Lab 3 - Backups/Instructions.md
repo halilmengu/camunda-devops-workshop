@@ -27,7 +27,7 @@ Adjust the values of [`camunda-platform-backup-values.yaml`](./camunda-platform-
 * `ZEEBE_BROKER_DATA_BACKUP_S3_SECRETKEY`: `secretKey` of the created credentials.
 
 ```shell
-helm install camunda camunda/camunda-platform -f camunda-platform-backup-values.yaml
+helm install camunda-platform camunda/camunda-platform -f camunda-platform-backup-values.yaml
 ```
 
 ## Port-Forward Gateway
