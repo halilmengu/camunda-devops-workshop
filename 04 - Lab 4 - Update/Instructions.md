@@ -1,18 +1,27 @@
 ## Adjust Values
 Using a lower version, so we can update to a newer one.
 
-````
+```
 global:
   image:
     tag: 8.2.5
-````
+```
 
-````
+To allow running on a single node, all `zeebe` and `zeebe-gateway` pods do get the pre-configured `podAntiAffinity` removed:
+
+```
 zeebe-gateway:
   replicas: 1
   affinity:
     podAntiAffinity: null
-````
+```
+
+```
+zeebe:
+  replicas: 1
+  affinity:
+    podAntiAffinity: null
+```
 
 ## Install 
 
