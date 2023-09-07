@@ -53,15 +53,15 @@ kubectl describe sts camunda-platform-zeebe
 Events:
   Type    Reason            Age                    From                    Message
   ----    ------            ----                   ----                    -------
-  Normal  SuccessfulCreate  4m36s                  statefulset-controller  create Claim data-ccsm-zeebe-0 Pod camunda-platform-zeebe-0 in StatefulSet camunda-platform-zeebe success
-  Normal  SuccessfulCreate  4m36s                  statefulset-controller  create Claim data-ccsm-zeebe-1 Pod camunda-platform-zeebe-1 in StatefulSet camunda-platform-zeebe success
-  Normal  SuccessfulCreate  4m36s                  statefulset-controller  create Claim data-ccsm-zeebe-2 Pod camunda-platform-zeebe-2 in StatefulSet camunda-platform-zeebe success
-  Normal  SuccessfulDelete  2m33s                  statefulset-controller  delete Pod ccsm-zeebe-2 in StatefulSet camunda-platform-zeebe successful
-  Normal  SuccessfulCreate  2m29s (x2 over 4m36s)  statefulset-controller  create Pod ccsm-zeebe-2 in StatefulSet camunda-platform-zeebe successful
-  Normal  SuccessfulDelete  88s                    statefulset-controller  delete Pod ccsm-zeebe-1 in StatefulSet camunda-platform-zeebe successful
-  Normal  SuccessfulCreate  82s (x2 over 4m36s)    statefulset-controller  create Pod ccsm-zeebe-1 in StatefulSet camunda-platform-zeebe successful
-  Normal  SuccessfulDelete  22s                    statefulset-controller  delete Pod ccsm-zeebe-0 in StatefulSet camunda-platform-zeebe successful
-  Normal  SuccessfulCreate  18s (x2 over 4m36s)    statefulset-controller  create Pod ccsm-zeebe-0 in StatefulSet camunda-platform-zeebe successful
+  Normal  SuccessfulCreate  4m36s                  statefulset-controller  create Claim data-camunda-platform-zeebe-0 Pod camunda-platform-zeebe-0 in StatefulSet camunda-platform-zeebe success
+  Normal  SuccessfulCreate  4m36s                  statefulset-controller  create Claim data-camunda-platform-zeebe-1 Pod camunda-platform-zeebe-1 in StatefulSet camunda-platform-zeebe success
+  Normal  SuccessfulCreate  4m36s                  statefulset-controller  create Claim data-camunda-platform-zeebe-2 Pod camunda-platform-zeebe-2 in StatefulSet camunda-platform-zeebe success
+  Normal  SuccessfulDelete  2m33s                  statefulset-controller  delete Pod camunda-platform-zeebe-2 in StatefulSet camunda-platform-zeebe successful
+  Normal  SuccessfulCreate  2m29s (x2 over 4m36s)  statefulset-controller  create Pod camunda-platform-zeebe-2 in StatefulSet camunda-platform-zeebe successful
+  Normal  SuccessfulDelete  88s                    statefulset-controller  delete Pod camunda-platform-zeebe-1 in StatefulSet camunda-platform-zeebe successful
+  Normal  SuccessfulCreate  82s (x2 over 4m36s)    statefulset-controller  create Pod camunda-platform-zeebe-1 in StatefulSet camunda-platform-zeebe successful
+  Normal  SuccessfulDelete  22s                    statefulset-controller  delete Pod camunda-platform-zeebe-0 in StatefulSet camunda-platform-zeebe successful
+  Normal  SuccessfulCreate  18s (x2 over 4m36s)    statefulset-controller  create Pod camunda-platform-zeebe-0 in StatefulSet camunda-platform-zeebe successful
 ```
 
 Zeebe Gateway
