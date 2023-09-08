@@ -17,7 +17,7 @@ Run query e.g. `apiserver_request_total`
 
 ```shell
 kubectl port-forward svc/prometheus-grafana 8080:80
-```shell
+```
 
 login: admin / prom-operator
 
