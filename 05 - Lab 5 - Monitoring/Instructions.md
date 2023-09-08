@@ -4,6 +4,8 @@ Also for Prometheus we can use a Helm Chart
 
 ```shell
 helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+```
+```shell
 helm install prometheus prometheus-community/kube-prometheus-stack --set prometheus-node-exporter.hostRootFsMount.enabled=false --set grafana.defaultDashboardsTimezone=browser
 ```
 
