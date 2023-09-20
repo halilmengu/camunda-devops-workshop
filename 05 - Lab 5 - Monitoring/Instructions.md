@@ -2,21 +2,26 @@
 
 Also for Prometheus we can use a Helm Chart
 
-```
+```shell
 helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+```
+```shell
 helm install prometheus prometheus-community/kube-prometheus-stack --set prometheus-node-exporter.hostRootFsMount.enabled=false --set grafana.defaultDashboardsTimezone=browser
 ```
 
 https://github.com/prometheus-community/helm-charts/tree/main/charts/kube-prometheus-stack
 
+```shell
 kubectl port-forward svc/prometheus-kube-prometheus-prometheus 9090:9090
+```
 
 Run query e.g. `apiserver_request_total`
 
+```shell
 kubectl port-forward svc/prometheus-grafana 8080:80
+```
 
-un: admin
-pw: prom-operator
+login: admin / prom-operator
 
 ## Import Dashboard
 
@@ -36,12 +41,15 @@ prometheusServiceMonitor:
 
 ## Start
 
+```shell
 helm install camunda-platform camunda/camunda-platform -f camunda-platform-monitoring-values.yaml 
+```
 
 ## Wait
 
+```shell
 kubectl get pods -w
-
+```
 
 ## View Grafana Dasbhoard again
 
