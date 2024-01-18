@@ -2,7 +2,10 @@
 https://github.com/camunda/camunda-platform#using-docker-compose
 
 ## Docker-Compose up
+
+```shell
 docker compose -f docker-compose-core.yaml up
+```
 
 ## View Operate
 http://localhost:8081/
@@ -27,7 +30,9 @@ Endpoint: http://localhost:26500
 
 ## Docker Compose Down
 
+```shell
 docker compose down
+```
 
 ## Optional: Show Full Stack
 
