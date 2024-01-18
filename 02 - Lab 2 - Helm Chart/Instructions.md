@@ -24,6 +24,15 @@ kubectl port-forward svc/camunda-platform-operate  8081:80
 
 Go to http://localhost:8081/
 
+Login: demo / demo
+
+## View Tasklist
+
+```shell
+kubectl port-forward svc/camunda-platform-operate  8082:80
+```
+
+Go to http://localhost:8082/
 
 Login: demo / demo
 
