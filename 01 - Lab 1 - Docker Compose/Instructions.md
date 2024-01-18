@@ -37,6 +37,10 @@ docker compose down
 ## Optional: Show Full Stack
 
 Change in env:
-ZEEBE_AUTHENTICATION_MODE=identity
 
-docker compose -f docker-compose.yaml up
+`ZEEBE_AUTHENTICATION_MODE=identity`
+
+```shell
+docker compose up
+```
+(will run with `docker-compose.yaml`)
