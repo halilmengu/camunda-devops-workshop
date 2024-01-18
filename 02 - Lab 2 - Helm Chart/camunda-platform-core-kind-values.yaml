@@ -5,7 +5,7 @@ global:
       # it will fall back to basic-auth: demo/demo as default user
       enabled: false
 
-# Disable identity as part of the camunda platform core
+# Disable identity as part of the Camunda core
 identity:
   enabled: false
 
@@ -18,7 +18,7 @@ zeebe:
   clusterSize: 1
   partitionCount: 1
   replicationFactor: 1
-  pvcSize: 1Gi
+  pvcSize: 10Gi
 
 zeebe-gateway:
   replicas: 1
@@ -27,21 +27,10 @@ connectors:
   enabled: true
   inbound:
     mode: disabled
-  env:
-    - name: OPERATE_CLIENT_ENABLED
-      value: "false"
 
-# Configure elastic search to make it running for local development
 elasticsearch:
-  replicas: 1
-  minimumMasterNodes: 1
-  # Allow no backup for single node setups
-  clusterHealthCheckParams: "wait_for_status=yellow&timeout=1s"
-
-  # Request smaller persistent volumes.
-  volumeClaimTemplate:
-    accessModes: [ "ReadWriteOnce" ]
-    resources:
-      requests:
-        storage: 2Gi
-
+  master:
+    replicaCount: 1
+    # Request smaller persistent volumes.
+    persistence:
+      size: 15Gi
