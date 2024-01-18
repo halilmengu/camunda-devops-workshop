@@ -29,7 +29,7 @@ Login: demo / demo
 ## View Tasklist
 
 ```shell
-kubectl port-forward svc/camunda-platform-operate  8082:80
+kubectl port-forward svc/camunda-platform-tasklist  8082:80
 ```
 
 Go to http://localhost:8082/
