@@ -88,6 +88,18 @@ curl -X POST 'localhost:9600/actuator/exporting/resume'
 
 >This command can be omitted to make sure that the Elasticsearch state is in sync with the zeebe state on restore
 
+### Review the backup data
+
+Again, port-forward the minio console:
+
+```shell
+kubectl port-forward pod/minio 9090:9090
+```
+
+Go to _Buckets_ -> click the bucket `c8-backup` -> click the "folder" icon on the top right
+
+Now, you should be able to see a folder called "1" in the file browser. Here, you can inspect the data backed up by zeebe.
+
 ## Restore from backup
 
 To be able to restore from a backup, zeebe contains an additional init container in the attached values file.
