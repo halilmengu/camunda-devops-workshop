@@ -26,37 +26,128 @@ Adjust the values of [`camunda-platform-backup-values.yaml`](./camunda-platform-
 * `ZEEBE_BROKER_DATA_BACKUP_S3_ACCESSKEY`: `accessKey` of the created credentials.
 * `ZEEBE_BROKER_DATA_BACKUP_S3_SECRETKEY`: `secretKey` of the created credentials.
 
+Please make sure to adjust them in both positions: the `zeebe.env` and the `zeebe.initContainers[0].env`.
+
 ```shell
 helm install camunda-platform camunda/camunda-platform -f camunda-platform-backup-values.yaml
 ```
 
-## Port-Forward Gateway
+## Create some data to restore
+
+Port-forward the zeebe gateway once again:
 
 ```shell
-kubectl port-forward svc/camunda-platform-zeebe-gateway -p 9600:9600
+kubectl port-forward svc/camunda-platform-zeebe-gateway 26500:26500
 ```
 
-## Pause Exporter
+Deploy the created process definition from the last exercise and start a process instance.
+
+Inspect Operate to make sure the process is deployed and an instance is running.
+
+```shell
+kubectl port-forward svc/camunda-platform-operate 8081:80
+```
+
+Now, we are ready to back up the current zeebe state.
+
+>Please do not perform any action on platform, as we will not restore Elasticsearch.
+
+## Create a backup
+
+### Port-Forward Gateway
+
+```shell
+kubectl port-forward svc/camunda-platform-zeebe-gateway 9600:9600
+```
+
+### Pause Exporter
 
 ```shell
 curl -X POST 'localhost:9600/actuator/exporting/pause'
 ```
 
-## Trigger Backup
+### Trigger Backup
 
 ```shell
 curl -X POST 'http://localhost:9600/actuator/backups' --header 'Content-Type: application/json' -d '{"backupId": 1}'
 ```
 
-## Get Status of Backup
+### Get the status of the backup
 
 ```shell
 curl 'http://localhost:9600/actuator/backups/1'
 ```
-Wait until the `state` is `COMPLETED` 
 
-## Resume Exporter
+Wait until the `state` is `COMPLETED`
+
+### Resume Exporter
 
 ```shell
-curl -X POST localhost:9600/actuator/exporting/resume
+curl -X POST 'localhost:9600/actuator/exporting/resume'
 ```
+
+>This command can be omitted to make sure that the Elasticsearch state is in sync with the zeebe state on restore
+
+## Restore from backup
+
+To be able to restore from a backup, zeebe contains an additional init container.
+
+This init container contains the flag `ZEEBE_RESTORE` are environment variable to control whether a restore procedure should be applied.
+
+The behavior is:
+
+* if the zeebe data is empty, the restore will be carried out
+* if there is zeebe data, the restore will fail (which will block zeebe from starting)
+
+So, only enable this flag if a restore should be carried out and make sure the zeebe data disk is empty.
+
+### Simulate data loss
+
+Uninstall the platform:
+
+```shell
+helm uninstall camunda-platform
+```
+
+Then, delete the zeebe disk:
+
+```shell
+kubectl delete pvc data-camunda-platform-zeebe-0
+```
+
+The data is now lost!
+
+>Of course, the Elasticsearch data is still present.
+
+### Enable the restore mechanism
+
+Adjust the values of [`camunda-platform-backup-values.yaml`](./camunda-platform-backup-values.yaml):
+
+* `ZEEBE_RESTORE`: `"true"`
+* `ZEEBE_RESTORE_FROM_BACKUP_ID`: `"1"` (which is equal to the id provided when taking a backup)
+
+### Install the platform
+
+```shell
+helm install camunda-platform camunda/camunda-platform -f camunda-platform-backup-values.yaml
+```
+
+Then, you can inspect the logs of the `zeebe-restore` init container:
+
+```shell
+kubectl logs camunda-platform-zeebe-0 -c zeebe-restore -f
+```
+
+It reflects that the restore from the backup has been successful.
+
+## Assert that the restore did work out
+
+Remember the process instance from above? It should still have an open user task.
+
+Port-forward Tasklist:
+
+```shell
+kubectl port-forward svc/camunda-platform-tasklist 8082:80
+```
+
+Then, visit [`localhost:8082`](http://localhost:8082) and complete the open user task.

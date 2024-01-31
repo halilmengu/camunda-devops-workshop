@@ -38,11 +38,60 @@ zeebe:
   - name: ZEEBE_BROKER_DATA_BACKUP_S3_ENDPOINT
     value: "http://minio.default.svc.cluster.local:9000"
   - name: ZEEBE_BROKER_DATA_BACKUP_S3_ACCESSKEY
-    value: "K6VObp9bS8E1dfUDoAlu"
+    value: "7KO3AkzJEe22e85dy6wL"
   - name: ZEEBE_BROKER_DATA_BACKUP_S3_SECRETKEY
-    value: "KhLkAJ7Llw0hfpTZfzuw5Cy1dGdhTwlQhvIQz3WO"
+    value: "AcK06TIRw8ZSLp1mzyY5ANV15xZmgqqyIg1IMoqq"
   - name: ZEEBE_BROKER_DATA_BACKUP_S3_REGION
     value: "us-east-1"
+  initContainers:
+  - name: zeebe-restore
+    image: camunda/zeebe
+    command: ["/bin/bash"]
+    args: [ "-c" ,"export ZEEBE_BROKER_CLUSTER_NODEID=${ZEEBE_BROKER_CLUSTER_NODEID:-${K8S_NAME##*-}};
+                        env;
+                        echo ClusterId is $ZEEBE_BROKER_CLUSTER_NODEID;
+                        if [ ${ZEEBE_RESTORE} = true ];
+                        then
+                          ls -laR /usr/local/zeebe/data;
+                          rm -rf /usr/local/zeebe/data/lost+found;
+                          exec /usr/local/zeebe/bin/restore --backupId=${ZEEBE_RESTORE_FROM_BACKUP_ID};
+                        fi"]
+    volumeMounts:
+    - name: data
+      mountPath: /usr/local/zeebe/data
+    securityContext:
+      runAsUser: 1000
+      runAsNonRoot: true
+    env:
+    - name: K8S_NAME
+      valueFrom:
+        fieldRef:
+          fieldPath: metadata.name
+    - name: ZEEBE_BROKER_CLUSTER_PARTITIONSCOUNT
+      value: "1"
+    - name: ZEEBE_BROKER_CLUSTER_CLUSTERSIZE
+      value: "1"
+    - name: ZEEBE_BROKER_CLUSTER_REPLICATIONFACTOR
+      value: "1"
+    - name: ZEEBE_BROKER_DATA_BACKUP_STORE
+      value: "S3"
+    - name: ZEEBE_BROKER_DATA_BACKUP_S3_BUCKETNAME
+      value: "c8-backup"
+    - name: ZEEBE_BROKER_DATA_BACKUP_S3_FORCEPATHSTYLEACCESS
+      value: "true"
+    - name: ZEEBE_BROKER_DATA_BACKUP_S3_ENDPOINT
+      value: "http://minio.default.svc.cluster.local:9000"
+    - name: ZEEBE_BROKER_DATA_BACKUP_S3_ACCESSKEY
+      value: "7KO3AkzJEe22e85dy6wL"
+    - name: ZEEBE_BROKER_DATA_BACKUP_S3_SECRETKEY
+      value: "AcK06TIRw8ZSLp1mzyY5ANV15xZmgqqyIg1IMoqq"
+    - name: ZEEBE_BROKER_DATA_BACKUP_S3_REGION
+      value: "us-east-1"
+    - name: ZEEBE_RESTORE_FROM_BACKUP_ID
+      value: "1"
+    - name: ZEEBE_RESTORE
+      value: "true"
+
 
 zeebe-gateway:
   replicas: 1
@@ -51,21 +100,12 @@ connectors:
   enabled: true
   inbound:
     mode: disabled
-  env:
-    - name: OPERATE_CLIENT_ENABLED
-      value: "false"
 
 # Configure elastic search to make it running for local development
 elasticsearch:
-  replicas: 1
-  minimumMasterNodes: 1
-  # Allow no backup for single node setups
-  clusterHealthCheckParams: "wait_for_status=yellow&timeout=1s"
-
-  # Request smaller persistent volumes.
-  volumeClaimTemplate:
-    accessModes: [ "ReadWriteOnce" ]
-    resources:
-      requests:
-        storage: 2Gi
+  master:
+    replicaCount: 1
+    # Request smaller persistent volumes.
+    persistence:
+      size: 15Gi
 
