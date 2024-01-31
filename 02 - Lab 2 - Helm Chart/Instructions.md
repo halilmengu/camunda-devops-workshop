@@ -1,7 +1,9 @@
 ## Download Values.yaml
+
 https://github.com/camunda/camunda-platform-helm/blob/main/kind/camunda-platform-core-kind-values.yaml 
 
 ## Start
+
 ```shell
 helm repo add camunda https://helm.camunda.io
 ```
@@ -43,15 +45,17 @@ kubectl port-forward svc/camunda-platform-zeebe-gateway 26500:26500
 ```
 
 Endpoint: http://localhost:26500
+
 - Include User Task
 - Include Connector (e.g. REST https://httpbin.org/)
 
 ## Start Instance
+
 - Go to Operate
-kubectl port-forward svc/camunda-platform-tasklist 8082:80
 - Go to Tasklist
 
 ## Review values.yaml
+
 - Talk about Limitations
     - 1 Broker
     - No Identity
