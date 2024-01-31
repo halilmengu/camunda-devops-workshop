@@ -102,6 +102,8 @@ Now, you should be able to see a folder for each partition (1,2 and 3) each cont
 
 ## Restore from backup
 
+>Disclaimer: This restore procedure or not officially documented and has its flaws. If you need to restore data, please approach us and get up-to-date information.
+
 To be able to restore from a backup, zeebe contains an additional init container in the attached values file.
 
 This init container contains the flag `ZEEBE_RESTORE` are environment variable to control whether a restore procedure should be applied as well as a property `ZEEBE_RESTORE_FROM_BACKUP_ID` that contains the id of the backup to restore.
@@ -112,6 +114,8 @@ The behavior is:
 * if there is zeebe data, the restore will fail (which will block zeebe from starting)
 
 So, only enable this flag if a restore should be carried out and make sure the zeebe data disk is empty.
+
+>Warning: If a pod fails and is restarted, the init container is running again. If the restore flag is still enabled but data is restored already, the init container will fail.
 
 ### Simulate data loss
 
