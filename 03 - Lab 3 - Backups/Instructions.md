@@ -90,13 +90,13 @@ curl -X POST 'localhost:9600/actuator/exporting/resume'
 
 ## Restore from backup
 
-To be able to restore from a backup, zeebe contains an additional init container.
+To be able to restore from a backup, zeebe contains an additional init container in the attached values file.
 
-This init container contains the flag `ZEEBE_RESTORE` are environment variable to control whether a restore procedure should be applied.
+This init container contains the flag `ZEEBE_RESTORE` are environment variable to control whether a restore procedure should be applied as well as a property `ZEEBE_RESTORE_FROM_BACKUP_ID` that contains the id of the backup to restore.
 
 The behavior is:
 
-* if the zeebe data is empty, the restore will be carried out
+* if the zeebe data is empty, the restore of the given backup id will be carried out
 * if there is zeebe data, the restore will fail (which will block zeebe from starting)
 
 So, only enable this flag if a restore should be carried out and make sure the zeebe data disk is empty.
