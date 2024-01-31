@@ -42,6 +42,14 @@ Start instance from the modeler
 docker compose -f docker-compose-core.yaml down
 ```
 
+## Optional: Enable kibana with a profile
+
+To run kibana for es data inspection, use the kibana profile:
+
+```shell
+docker compose -f docker-compose-core.yaml --profile kibana up -d
+```
+
 ## Optional: Show Full Stack
 
 Change in env:
