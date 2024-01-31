@@ -98,7 +98,7 @@ kubectl port-forward pod/minio 9090:9090
 
 Go to _Buckets_ -> click the bucket `c8-backup` -> click the "folder" icon on the top right
 
-Now, you should be able to see a folder called "1" in the file browser. Here, you can inspect the data backed up by zeebe.
+Now, you should be able to see a folder for each partition (1,2 and 3) each containing a folder called "1" in the file browser. Here, you can inspect the data backed up by zeebe.
 
 ## Restore from backup
 
@@ -121,10 +121,10 @@ Uninstall the platform:
 helm uninstall camunda-platform
 ```
 
-Then, delete the zeebe disk:
+Then, delete all zeebe disks:
 
 ```shell
-kubectl delete pvc data-camunda-platform-zeebe-0
+kubectl delete pvc data-camunda-platform-zeebe-0 data-camunda-platform-zeebe-1 data-camunda-platform-zeebe-2
 ```
 
 The data is now lost!
@@ -150,6 +150,14 @@ Then, you can inspect the logs of the `zeebe-restore` init container:
 kubectl logs camunda-platform-zeebe-0 -c zeebe-restore -f
 ```
 
+```shell
+kubectl logs camunda-platform-zeebe-1 -c zeebe-restore -f
+```
+
+```shell
+kubectl logs camunda-platform-zeebe-2 -c zeebe-restore -f
+```
+
 It reflects that the restore from the backup has been successful.
 
 ## Assert that the restore did work out
@@ -163,3 +171,11 @@ kubectl port-forward svc/camunda-platform-tasklist 8082:80
 ```
 
 Then, visit [`localhost:8082`](http://localhost:8082) and complete the open user task.
+
+Next, you can port-forward Operate:
+
+```shell
+kubectl port-forward svc/camunda-platform-operate 8081:80
+```
+
+Then, visit [`localhost:8081`](http://localhost:8081) and check whether the user task is complete.
