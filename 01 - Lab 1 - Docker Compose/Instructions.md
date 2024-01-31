@@ -1,27 +1,35 @@
 ## Download Repo
+
 https://github.com/camunda/camunda-platform#using-docker-compose
 
 ## Docker-Compose up
 
 ```shell
-docker compose -f docker-compose-core.yaml up
+docker compose -f docker-compose-core.yaml up -d
 ```
 
 ## View Operate
-http://localhost:8081/
+
+Url: http://localhost:8081/
 
 login: demo / demo
 
 ## Deploy Diagram
+
 Endpoint: http://localhost:26500
+
 - Include User Task
 - Include Connector (e.g. REST https://httpbin.org/)
 
 ## Start Instance
+
+Start instance from the modeler
+
 - Go to Operate
 - Go to Tasklist
 
 ## Review Docker-Compose
+
 - Talk about Limitations
     - 1 Broker
     - No Identity
@@ -31,7 +39,7 @@ Endpoint: http://localhost:26500
 ## Docker Compose Down
 
 ```shell
-docker compose down
+docker compose -f docker-compose-core.yaml down
 ```
 
 ## Optional: Show Full Stack
@@ -41,6 +49,6 @@ Change in env:
 `ZEEBE_AUTHENTICATION_MODE=identity`
 
 ```shell
-docker compose up
+docker compose up -d
 ```
 (will run with `docker-compose.yaml`)
