@@ -26,11 +26,11 @@ zeebe-gateway:
     host: "zeebe.localhost"
 
 elasticsearch:
-  imageTag: 7.16.1
-  replicas: 1
-  minimumMasterNodes: 1
-  # Allow no backup for single node setups
-  clusterHealthCheckParams: "wait_for_status=yellow&timeout=1s"
+  master:
+    replicaCount: 1
+    # Request smaller persistent volumes.
+    persistence:
+      size: 15Gi
 
 operate:
   ingress: 
