@@ -18,7 +18,7 @@ zeebe:
   clusterSize: 1
   partitionCount: 1
   replicationFactor: 1
-  pvcSize: 1Gi
+  pvcSize: 10Gi
 
 zeebe-gateway:
   replicas: 1
@@ -30,17 +30,11 @@ connectors:
 
 # Configure elastic search to make it running for local development
 elasticsearch:
-  replicas: 1
-  minimumMasterNodes: 1
-  # Allow no backup for single node setups
-  clusterHealthCheckParams: "wait_for_status=yellow&timeout=1s"
-
-  # Request smaller persistent volumes.
-  volumeClaimTemplate:
-    accessModes: [ "ReadWriteOnce" ]
-    resources:
-      requests:
-        storage: 2Gi
+  master:
+    replicaCount: 1
+    # Request smaller persistent volumes.
+    persistence:
+      size: 15Gi
 
 prometheusServiceMonitor:
   enabled: true
