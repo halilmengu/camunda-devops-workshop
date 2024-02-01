@@ -20,7 +20,7 @@ zeebe:
   clusterSize: 3
   partitionCount: 3
   replicationFactor: 3
-  pvcSize: 1Gi
+  pvcSize: 10Gi
   affinity:
     podAntiAffinity: null
 
@@ -36,16 +36,9 @@ connectors:
 
 # Configure elastic search to make it running for local development
 elasticsearch:
-  replicas: 1
-  minimumMasterNodes: 1
-  # Allow no backup for single node setups
-  clusterHealthCheckParams: "wait_for_status=yellow&timeout=1s"
-
-  # Request smaller persistent volumes.
-  volumeClaimTemplate:
-    accessModes: [ "ReadWriteOnce" ]
-    storageClassName: "hostpath"
-    resources:
-      requests:
-        storage: 2Gi
+  master:
+    replicaCount: 1
+    # Request smaller persistent volumes.
+    persistence:
+      size: 15Gi
 
