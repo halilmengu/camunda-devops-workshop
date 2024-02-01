@@ -14,7 +14,7 @@ kubectl port-forward pod/minio 9090:9090
 
 Login: minioadmin / minioadmin
 
-Go to _Access Keys_ -> create one, download created credentials
+Go to _Access Keys_ -> create one with option "Restrict beyond user policy" enabled, download created credentials
 
 Go to _Buckets_ -> create one, name it `c8-backup`
 
