@@ -38,9 +38,9 @@ zeebe:
   - name: ZEEBE_BROKER_DATA_BACKUP_S3_ENDPOINT
     value: "http://minio.default.svc.cluster.local:9000"
   - name: ZEEBE_BROKER_DATA_BACKUP_S3_ACCESSKEY
-    value: "7KO3AkzJEe22e85dy6wL"
+    value: "LL5vo1uBWpMM2KZX0ndZ"
   - name: ZEEBE_BROKER_DATA_BACKUP_S3_SECRETKEY
-    value: "AcK06TIRw8ZSLp1mzyY5ANV15xZmgqqyIg1IMoqq"
+    value: "IVg33qDyLGKauHpLkEDMA4RwKi59dPG9tODS14jq"
   - name: ZEEBE_BROKER_DATA_BACKUP_S3_REGION
     value: "us-east-1"
   initContainers:
@@ -82,15 +82,15 @@ zeebe:
     - name: ZEEBE_BROKER_DATA_BACKUP_S3_ENDPOINT
       value: "http://minio.default.svc.cluster.local:9000"
     - name: ZEEBE_BROKER_DATA_BACKUP_S3_ACCESSKEY
-      value: "7KO3AkzJEe22e85dy6wL"
+      value: "LL5vo1uBWpMM2KZX0ndZ"
     - name: ZEEBE_BROKER_DATA_BACKUP_S3_SECRETKEY
-      value: "AcK06TIRw8ZSLp1mzyY5ANV15xZmgqqyIg1IMoqq"
+      value: "IVg33qDyLGKauHpLkEDMA4RwKi59dPG9tODS14jq"
     - name: ZEEBE_BROKER_DATA_BACKUP_S3_REGION
       value: "us-east-1"
     - name: ZEEBE_RESTORE_FROM_BACKUP_ID
       value: "1"
     - name: ZEEBE_RESTORE
-      value: "true"
+      value: "false"
 
 
 zeebe-gateway:
