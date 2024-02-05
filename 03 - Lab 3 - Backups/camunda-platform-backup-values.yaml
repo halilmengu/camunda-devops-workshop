@@ -17,9 +17,9 @@ optimize:
 zeebe:
   affinity:
     podAntiAffinity: null
-  clusterSize: 3
-  partitionCount: 3
-  replicationFactor: 3
+  clusterSize: 1
+  partitionCount: 1
+  replicationFactor: 1
   pvcSize: 10Gi
   resources:
     requests:
@@ -68,11 +68,11 @@ zeebe:
         fieldRef:
           fieldPath: metadata.name
     - name: ZEEBE_BROKER_CLUSTER_PARTITIONSCOUNT
-      value: "3"
+      value: "1"
     - name: ZEEBE_BROKER_CLUSTER_CLUSTERSIZE
-      value: "3"
+      value: "1"
     - name: ZEEBE_BROKER_CLUSTER_REPLICATIONFACTOR
-      value: "3"
+      value: "1"
     - name: ZEEBE_BROKER_DATA_BACKUP_STORE
       value: "S3"
     - name: ZEEBE_BROKER_DATA_BACKUP_S3_BUCKETNAME
