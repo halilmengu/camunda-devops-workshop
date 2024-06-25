@@ -1,185 +1,251 @@
-## Deploy MinIO
+# Trigger Backup and Restore
 
-```shell
-kubectl apply -f minio-dev.yaml
+## Create Demo Environment
+
+### Create Minio
+
+```bash
+helm install minio oci://registry-1.docker.io/bitnamicharts/minio -f minio-values.yaml
 ```
 
-## Port-Forward minio
+### Install Camunda
 
-```shell
-kubectl port-forward pod/minio 9090:9090
+```bash
+helm install camunda camunda/camunda-platform -f camunda-values.yaml --version 9.3.6
 ```
 
-## Create Credentials + Bucket
-
-Login: minioadmin / minioadmin
-
-Go to _Access Keys_ -> create one with option "Restrict beyond user policy" enabled, download created credentials
-
-Go to _Buckets_ -> create one, name it `c8-backup`
-
-## Define Backup Location
-
-Adjust the values of [`camunda-platform-backup-values.yaml`](./camunda-platform-backup-values.yaml):
-
-* `ZEEBE_BROKER_DATA_BACKUP_S3_BUCKETNAME`: The name of the bucket you created.
-* `ZEEBE_BROKER_DATA_BACKUP_S3_ACCESSKEY`: `accessKey` of the created credentials.
-* `ZEEBE_BROKER_DATA_BACKUP_S3_SECRETKEY`: `secretKey` of the created credentials.
-
-Please make sure to adjust them in both positions: the `zeebe.env` and the `zeebe.initContainers[0].env`.
-
-```shell
-helm install camunda-platform camunda/camunda-platform -f camunda-platform-backup-values.yaml
+### Wait for ES to be ready
+```bash
+kubectl rollout status sts/camunda-elasticsearch-master
 ```
 
-## Create some data to restore
-
-Port-forward the zeebe gateway once again:
-
-```shell
-kubectl port-forward svc/camunda-platform-zeebe-gateway 26500:26500
+### Register Snapshot Repositories
+```bash
+kubectl apply -f es-snapshot-minio-job.yaml
 ```
 
-Deploy the created process definition from the last exercise and start a process instance.
-
-Inspect Operate to make sure the process is deployed and an instance is running.
-
-```shell
-kubectl port-forward svc/camunda-platform-operate 8081:80
+```bash
+kubectl logs -f $(kubectl get pods --selector=job-name=es-snapshot-minio-job --output=jsonpath='{.items[*].metadata.name}' | awk '{print $1}') 
 ```
 
-Now, we are ready to back up the current zeebe state.
+### Generate Data
 
->Please do not perform any action on platform, as we will not restore Elasticsearch.
-
-## Create a backup
-
-### Port-Forward Gateway
-
-```shell
-kubectl port-forward svc/camunda-platform-zeebe-gateway 9600:9600
+```bash
+kubectl create configmap models --from-file=CamundaProcess.bpmn=./backup/BenchmarkProcess.bpmn
 ```
 
-### Pause Exporter
-
-```shell
-curl -X POST 'localhost:9600/actuator/exporting/pause'
+```bash
+kubectl apply -f ./backup/zbctl-deploy-job.yaml 
 ```
 
-### Trigger Backup
-
-```shell
-curl -X POST 'http://localhost:9600/actuator/backups' --header 'Content-Type: application/json' -d '{"backupId": 1}'
+```bash
+kubectl logs -f $(kubectl get pods --selector=job-name=zbctl-deploy --output=jsonpath='{.items[*].metadata.name}' | awk '{print $1}') 
 ```
 
-### Get the status of the backup
-
-```shell
-curl 'http://localhost:9600/actuator/backups/1'
+```bash
+kubectl create configmap payload --from-file=./backup/payload.json
 ```
 
-Wait until the `state` is `COMPLETED`
-
-### Resume Exporter
-
-```shell
-curl -X POST 'localhost:9600/actuator/exporting/resume'
+```bash
+kubectl apply -f ./backup/benchmark.yaml
+sleep 30
+kubectl delete deploy benchmark
 ```
 
->This command can be omitted to make sure that the Elasticsearch state is in sync with the zeebe state on restore
 
-### Review the backup data
+### Review Current State
 
-Again, port-forward the minio console:
+![Screenshot Operate](images/operate-overview.png)
 
-```shell
-kubectl port-forward pod/minio 9090:9090
+## Perform Backup
+### Generate BackupId
+```bash
+./backup/create-backupId-as-secret.sh
 ```
 
-Go to _Buckets_ -> click the bucket `c8-backup` -> click the "folder" icon on the top right
+### Trigger Backup for Operate, Tasklist and Optimize
 
-Now, you should be able to see a folder for each partition (1,2 and 3) each containing a folder called "1" in the file browser. Here, you can inspect the data backed up by zeebe.
-
-## Restore from backup
-
->Disclaimer: This restore procedure or not officially documented and has its flaws. If you need to restore data, please approach us and get up-to-date information.
-
-To be able to restore from a backup, zeebe contains an additional init container in the attached values file.
-
-This init container contains the flag `ZEEBE_RESTORE` are environment variable to control whether a restore procedure should be applied as well as a property `ZEEBE_RESTORE_FROM_BACKUP_ID` that contains the id of the backup to restore.
-
-The behavior is:
-
-* if the zeebe data is empty, the restore of the given backup id will be carried out
-* if there is zeebe data, the restore will fail (which will block zeebe from starting)
-
-So, only enable this flag if a restore should be carried out and make sure the zeebe data disk is empty.
-
->Warning: If a pod fails and is restarted, the init container is running again. If the restore flag is still enabled but data is restored already, the init container will fail.
-
-### Simulate data loss
-
-Uninstall the platform:
-
-```shell
-helm uninstall camunda-platform
+```bash
+kubectl apply -f ./backup/camunda-backup-job.yaml
 ```
 
-Then, delete all zeebe disks:
+```bash
+kubectl logs -f $(kubectl get pods --selector=job-name=camunda-backup-job --output=jsonpath='{.items[*].metadata.name}' | awk '{print $1}') 
+```
+### Pause Exporting
 
-```shell
-kubectl delete pvc data-camunda-platform-zeebe-0 data-camunda-platform-zeebe-1 data-camunda-platform-zeebe-2
+```bash
+kubectl apply -f ./backup/zeebe-export-pause.yaml
 ```
 
-The data is now lost!
-
->Of course, the Elasticsearch data is still present.
-
-### Enable the restore mechanism
-
-Adjust the values of [`camunda-platform-backup-values.yaml`](./camunda-platform-backup-values.yaml):
-
-* `ZEEBE_RESTORE`: `"true"`
-* `ZEEBE_RESTORE_FROM_BACKUP_ID`: `"1"` (which is equal to the id provided when taking a backup)
-
-### Install the platform
-
-```shell
-helm install camunda-platform camunda/camunda-platform -f camunda-platform-backup-values.yaml
+### Backup of Zeebe Records in ES
+```bash
+kubectl apply -f ./backup/es-create-snapshot-zeebe.yaml
 ```
 
-Then, you can inspect the logs of the `zeebe-restore` init container:
-
-```shell
-kubectl logs camunda-platform-zeebe-0 -c zeebe-restore -f
+```bash
+kubectl logs -f $(kubectl get pods --selector=job-name=es-create-snapshot-zeebe --output=jsonpath='{.items[*].metadata.name}' | awk '{print $1}') 
 ```
 
-```shell
-kubectl logs camunda-platform-zeebe-1 -c zeebe-restore -f
+### Zeebe Backup
+```bash
+kubectl apply -f ./backup/zeebe-backup-job.yaml
 ```
 
-```shell
-kubectl logs camunda-platform-zeebe-2 -c zeebe-restore -f
+```bash
+kubectl logs -f $(kubectl get pods --selector=job-name=zeebe-backup-job --output=jsonpath='{.items[*].metadata.name}' | awk '{print $1}') 
 ```
 
-It reflects that the restore from the backup has been successful.
+### (Optional not required for the Demo) Resume Exporting
 
-## Assert that the restore did work out
-
-Remember the process instance from above? It should still have an open user task.
-
-Port-forward Tasklist:
-
-```shell
-kubectl port-forward svc/camunda-platform-tasklist 8082:80
+```bash
+kubectl apply -f ./backup/zeebe-export-resume.yaml
 ```
 
-Then, visit [`localhost:8082`](http://localhost:8082) and complete the open user task.
+## Simulate Data Loss
 
-Next, you can port-forward Operate:
-
-```shell
-kubectl port-forward svc/camunda-platform-operate 8081:80
+```bash
+helm delete camunda
 ```
 
-Then, visit [`localhost:8081`](http://localhost:8081) and check whether the user task is complete.
+```bash
+kubectl delete pvc data-camunda-elasticsearch-master-0 data-camunda-elasticsearch-master-1 data-camunda-postgresql-0 data-camunda-zeebe-0 data-camunda-zeebe-1 data-camunda-zeebe-2
+```
+
+## Restore
+### Create New Camunda Cluster
+
+```bash
+helm install camunda camunda/camunda-platform -f camunda-values.yaml --version 9.3.6
+```
+
+```bash
+kubectl rollout status deploy/camunda-operate
+```
+
+Why? Templates and Aliases are created again.
+
+### Verify that Templates are generated.
+
+![Templates](images/kibana-templates.png)
+
+### Scale Down Zeebe & Webapps.
+```bash
+kubectl scale sts/camunda-zeebe --replicas=0
+kubectl scale deploy/camunda-zeebe-gateway --replicas=0
+kubectl scale deploy/camunda-operate --replicas=0
+kubectl scale deploy/camunda-tasklist --replicas=0
+kubectl scale deploy/camunda-optimize --replicas=0
+```
+
+### Register ES Repositories again
+```bash
+kubectl delete job es-snapshot-minio-job
+kubectl apply -f es-snapshot-minio-job.yaml
+```
+### Delete all Indices
+```bash
+kubectl apply -f restore/es-delete-all-indices.yaml
+```
+
+### Restore Snapshots
+```bash
+kubectl apply -f restore/es-snapshot-restore-job.yaml
+```
+
+### Restore Zeebe
+```bash
+kubectl apply -f restore/zeebe-restore-job-0.yaml
+```
+
+```bash
+kubectl logs -f $(kubectl get pods --selector=job-name=zeebe-restore-job-0 --output=jsonpath='{.items[*].metadata.name}' | awk '{print $1}') 
+```
+
+```bash
+kubectl apply -f restore/zeebe-restore-job-1.yaml
+```
+
+```bash
+kubectl logs -f $(kubectl get pods --selector=job-name=zeebe-restore-job-1 --output=jsonpath='{.items[*].metadata.name}' | awk '{print $1}') 
+```
+
+```bash
+kubectl apply -f restore/zeebe-restore-job-2.yaml
+```
+
+```bash
+kubectl logs -f $(kubectl get pods --selector=job-name=zeebe-restore-job-2 --output=jsonpath='{.items[*].metadata.name}' | awk '{print $1}') 
+```
+
+```bash
+kubectl delete jobs zeebe-restore-job-0 zeebe-restore-job-1 zeebe-restore-job-2
+```
+
+### Scale up Zeebe again
+```bash
+kubectl scale sts/camunda-zeebe --replicas=3
+```
+
+```bash
+kubectl rollout status sts/camunda-zeebe
+```
+
+```bash
+kubectl scale deploy/camunda-zeebe-gateway --replicas=2
+```
+
+```bash
+kubectl port-forward svc/camunda-zeebe-gateway 26500
+```
+
+```bash
+zbctl status --insecure
+```
+
+### Scale up Operate again
+```bash
+kubectl scale deploy/camunda-operate --replicas=1
+```
+### Scale up Tasklist again
+```bash
+kubectl scale deploy/camunda-tasklist --replicas=1
+```bash
+### Scale up Optimize again
+```bash
+kubectl scale deploy/camunda-optimize --replicas=1
+```
+
+# Validate Restore
+
+## Operate:
+
+![Screenshot Operate](images/operate-overview.png)
+
+## Zeebe:
+### Find an active Instance
+
+![Active Instance Operate](images/active-instance-operate.png)
+
+### Cancel it via Operate UI
+
+![Cancel Instance Operate](images/cancel-instance-operate1.png)
+
+### Validate Cancellation
+![Active Instance Operate](images/cancel-instance-operate2.png)
+
+# Cleanup
+```bash
+helm uninstall camunda
+```
+
+```bash
+helm uninstall minio
+```
+
+```bash
+kubectl delete jobs $(kubectl get jobs --no-headers -o custom-columns=":metadata.name,:status.conditions[?(@.type=='Complete')].status" | grep True | cut -d" " -f1)
+```
+```bash
+kubectl delete pvc data-camunda-elasticsearch-master-0 data-camunda-elasticsearch-master-1 data-camunda-postgresql-0 data-camunda-zeebe-0 data-camunda-zeebe-1 data-camunda-zeebe-2 minio
+```
