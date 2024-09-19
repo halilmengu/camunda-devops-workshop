@@ -49,7 +49,7 @@ kubectl create configmap payload --from-file=./backup/payload.json
 ```bash
 kubectl apply -f ./backup/benchmark.yaml
 sleep 30
-kubectl delete deploy benchmark
+kubectl delete -f ./backup/benchmark.yaml
 ```
 
 
@@ -140,7 +140,7 @@ kubectl scale deploy/camunda-optimize --replicas=0
 
 ### Register ES Repositories again
 ```bash
-kubectl delete job es-snapshot-minio-job
+kubectl delete -f es-snapshot-minio-job.yaml
 kubectl apply -f es-snapshot-minio-job.yaml
 ```
 ### Delete all Indices
