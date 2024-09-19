@@ -57,6 +57,6 @@ spec:
 
           # Call function for each service
           perform_backup "optimize" "8092" ""
-          perform_backup "operate" "80" "/operate"
-          perform_backup "tasklist" "80" "/tasklist"
+          perform_backup "operate" "80" ""
+          perform_backup "tasklist" "80" ""
       restartPolicy: Never
