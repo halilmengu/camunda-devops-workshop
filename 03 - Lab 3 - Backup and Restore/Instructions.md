@@ -192,7 +192,7 @@ kubectl rollout status sts/camunda-zeebe
 ```
 
 ```bash
-kubectl scale deploy/camunda-zeebe-gateway --replicas=2
+kubectl scale deploy/camunda-zeebe-gateway --replicas=1
 ```
 
 ```bash
@@ -210,7 +210,7 @@ kubectl scale deploy/camunda-operate --replicas=1
 ### Scale up Tasklist again
 ```bash
 kubectl scale deploy/camunda-tasklist --replicas=1
-```bash
+```
 ### Scale up Optimize again
 ```bash
 kubectl scale deploy/camunda-optimize --replicas=1
