@@ -23,7 +23,7 @@ All Configuration Options can be found in the official [Helm Chart Documentation
 Now you need to install the Camunda Platform chart:
 
 ```
-helm install ccsm camunda-cloud/camunda-platform -f values.yaml
+helm install camunda-platform camunda/camunda-platform -f values.yaml
 ```
 
 When observing your Kubernetes Cluster (e.g. `kubectl get pods`), you will see that next to Identity, also a Keycloak Instance and a Postgres will be deployed. Keycloak is a dependency for Camunda Identity, and PostgreSQL is a dependency for Keycloak.

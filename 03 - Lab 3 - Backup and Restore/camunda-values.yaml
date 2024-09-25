@@ -46,14 +46,13 @@ elasticsearch:
   global:
    kibanaEnabled: true
   kibana:
-    image:
-      tag: 8.9.2
-#    configuration:
-#      server:
-#        basePath: "/kibana"
-#        rewriteBasePath: true
     readinessProbe:
       enabled: false
+  # Workaround for https://github.com/bitnami/charts/issues/27607
+  extraVolumeMounts:
+    - name: empty-dir
+      mountPath: /bitnami/elasticsearch
+      subPath: app-volume-dir
   initScripts:
     init-keystore.sh: |
       #!/bin/bash
@@ -62,8 +61,8 @@ elasticsearch:
       echo "Adding S3 access keys to Elasticsearch keystore..."
 
       # Add S3 client default keys to the keystore
-      echo "$S3_SECRET_KEY" | elasticsearch-keystore add -x s3.client.default.secret_key
-      echo "$S3_ACCESS_KEY" | elasticsearch-keystore add -x s3.client.default.access_key
+      echo "$S3_SECRET_KEY" | elasticsearch-keystore add -f -x s3.client.default.secret_key
+      echo "$S3_ACCESS_KEY" | elasticsearch-keystore add -f -x s3.client.default.access_key
 
   extraEnvVars:
   - name: S3_SECRET_KEY

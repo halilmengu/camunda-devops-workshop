@@ -19,7 +19,7 @@ zeebe:
   replicationFactor: 1
   pvcSize: 10Gi
 
-zeebe-gateway:
+zeebeGateway:
   replicas: 1
   ingress: 
     enabled: true
@@ -45,14 +45,6 @@ identity:
   ingress: 
     enabled: true
     host: "identity.localhost"
-  keycloak:
-    ingress:
-      enabled: true
-      ingressClassName: nginx
-      hostname: "keycloak.localhost"
-    auth:
-      adminUser: admin
-      adminPassword: admin
   env: 
    - name: IDENTITY_AUTH_PROVIDER_ISSUER_URL
      value: "http://keycloak.localhost/auth/realms/camunda-platform"
@@ -60,6 +52,14 @@ identity:
      value: "http://identity.localhost"
    - name: CAMUNDA_IDENTITY_ENTERPRISE
      value: "true"
+identityKeycloak:
+  ingress:
+    enabled: true
+    ingressClassName: nginx
+    hostname: "keycloak.localhost"
+  auth:
+    adminUser: admin
+    adminPassword: admin
 
 tasklist:
   ingress: 

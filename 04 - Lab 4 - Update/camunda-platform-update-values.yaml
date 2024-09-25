@@ -5,10 +5,13 @@ global:
       # it will fall back to basic-auth: demo/demo as default user
       enabled: false
   image:
-    tag: 8.2.5
+    tag: 8.5.6
 
 # Disable identity as part of the camunda platform core
 identity:
+  enabled: false
+
+identityKeycloak:
   enabled: false
 
 optimize:

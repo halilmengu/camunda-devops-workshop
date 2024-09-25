@@ -11,7 +11,7 @@ helm install minio oci://registry-1.docker.io/bitnamicharts/minio -f minio-value
 ### Install Camunda
 
 ```bash
-helm install camunda camunda/camunda-platform -f camunda-values.yaml --version 9.3.6
+helm install camunda camunda/camunda-platform -f camunda-values.yaml --version 10.4.0
 ```
 
 ### Wait for ES to be ready
@@ -116,7 +116,7 @@ kubectl delete pvc data-camunda-elasticsearch-master-0 data-camunda-elasticsearc
 ### Create New Camunda Cluster
 
 ```bash
-helm install camunda camunda/camunda-platform -f camunda-values.yaml --version 9.3.6
+helm install camunda camunda/camunda-platform -f camunda-values.yaml --version 10.4.0
 ```
 
 ```bash
