@@ -1,0 +1,61 @@
+global:
+    identity:
+      auth:
+        issuer: http://localhost:18080/realms/camunda
+        issuerBackendUrl: http://camunda-keycloak/realms/camunda
+        tokenUrl: http://localhost:18080/realms/camunda/protocol/openid-connect/token
+        jwksUrl: http://localhost:18080/realms/camunda/protocol/openid-connect/certs
+        type: "GENERIC"
+        identity:
+          clientId: identity-api
+          existingSecret: 1Yeysaoq0j3oJ6mq1df9RKZVzahNBYTa # Replace
+          audience: identity-api
+          initialClaimName: sub
+          initialClaimValue: d73e3d88-2e8f-4faf-8b2e-18b5c5586366 # Replace
+        operate:
+          clientId: operate-api
+          audience: operate-api
+          existingSecret: lR2tz19avm97w3AfsJ4WWqhR7qMF2zzN # Replace
+        tasklist:
+          clientId: tasklist-api 
+          audience: tasklist-api
+          existingSecret: F7lEdg6eQlcyUir2VlfTNoi9It71cwrZ # Replace
+        optimize:
+          clientId: optimize-api
+          audience: optimize-api 
+          existingSecret: PxPnF35n57gxxrMGLdtfNqHZPBJymaZu # Replace
+        zeebe:
+          clientId: zeebe-api
+          audience: zeebe-api
+          existingSecret: WMKeHzOWhnz2holPhz6cEb2hGxU1dBf2 # Replace
+
+
+identityPostgresql:
+  enabled: true
+
+connectors:
+  enabled: false
+  inbound:
+    mode: disabled
+
+identityKeycloak:
+  enabled: false
+
+zeebe:
+  clusterSize: 1
+  partitionCount: 1
+  replicationFactor: 1
+  pvcSize: 10Gi
+  affinity:
+    podAntiAffinity: null
+
+zeebeGateway:
+  replicas: 1
+
+# Configure elastic search to make it running for local development
+elasticsearch:
+  master:
+    replicaCount: 1
+    # Request smaller persistent volumes.
+    persistence:
+      size: 15Gi
