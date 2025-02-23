@@ -1,0 +1,9 @@
+1- install minio 
+2- install camunda with minio connection parameters. 
+3- register snapshot repository to elasticsearch
+4- generate bpmn configmap & deploy it to camunda 
+5- create benchmark payload as cm & run benchmark for a while
+6- create backupID as secret
+7- take a snapshot of Operate, tasklist, optimize data to s3 backup paths (buckets). 
+8- stop zeebe exporting (pause).
+9- 

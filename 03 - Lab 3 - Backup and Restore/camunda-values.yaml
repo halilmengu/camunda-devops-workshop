@@ -1,5 +1,14 @@
+global:
+  kibana:
+    elabled: true
 identity:
   enabled: true
+  ingress:
+    enabled: true
+    className: nginx
+    path: /
+    pathType: Prefix
+    host: "camunda-identity.127.0.0.1.nip.io"
 
 connectors:
   enabled: false
@@ -8,6 +17,12 @@ operate:
   env:
   - name: CAMUNDA_OPERATE_BACKUP_REPOSITORY_NAME
     value: "operate-backup"
+  ingress:
+    enabled: true
+    className: nginx
+    path: /
+    pathType: Prefix
+    host: "camunda-operate.127.0.0.1.nip.io"
 
 optimize:
   env:

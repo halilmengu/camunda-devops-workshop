@@ -22,7 +22,7 @@ spec:
           set -e
 
           # Trigger the backup
-          curl --fail -X POST "http://camunda-zeebe-gateway:9600/actuator/backups" \
+          curl --fail -vv  -X POST "http://camunda-zeebe-gateway:9600/actuator/backups" \
             -H 'Content-Type: application/json' \
             -d "{\"backupId\": \"$BACKUP_TIME_ID\"}"
           echo "Backup trigger request sent for ID $BACKUP_TIME_ID"
