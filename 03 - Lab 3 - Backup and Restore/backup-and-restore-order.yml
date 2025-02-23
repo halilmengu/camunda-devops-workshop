@@ -1,0 +1,33 @@
+Şunların backup'ı alınmalı: 
+- Zeebe
+- Operate
+- Tasklist
+- Optimize 
+- Exported zeebe records in Elasticsearch. Yani Zeebe backup ile Zeebe'nin Elastcisearch'e atılan kayıtları ayrı ayrı backup alınmalı. 
+
+---- 
+Yedek alma süreci: 
+- Optimize için backup başlat
+  POST actuator/backups
+  {
+    "backupId": <backupId>
+  }
+- Operate için backup başlat 
+  POST actuator/backups
+  {
+    "backupId": <backupId>
+  }
+- Tasklist için backup başlat 
+  POST actuator/backups
+  {
+    "backupId": <backupId>
+  }
+- Zeebe'de exporting'i pause et. (POST actuator/exporting/pause)
+  - Elasticsearch'te Zeebe'nin export ettiği kayıtları snapshot al. 
+    PUT /_snapshot/my_repository/camunda_zeebe_records_backup_x
+       {
+       "indices": "zeebe-record*",
+       "feature_states": ["none"]
+       }
+
+
