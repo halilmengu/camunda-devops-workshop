@@ -30,9 +30,21 @@ defaultBuckets: zeebe-backup,operate-backup,tasklist-backup,optimize-backup
 ### 2. Install Camunda
 
 ```bash
-helm install camunda camunda/camunda-platform -f camunda-values.yaml --version 10.4.0
+# helm install camunda camunda/camunda-platform -f camunda-values.yaml --version 10.4.8 
+helm install camunda camunda/camunda-platform  --version 10.4.8 -f zeebe-albaraka.yaml
 ```
 [camunda-values.yaml](camunda-values.yaml)
+
+---
+
+#### * patch camunda-zeebe, remove affinity rule & delete existing pods
+
+```shell
+kubectl patch statefulset camunda-zeebe -p '{"spec":{"template":{"spec":{"affinity":null}}}}'
+kubectl scale statefulset/camunda-zeebe --replicas=0  && \
+kubectl delete pods -l app.kubernetes.io/component=zeebe-broker --force --grace-period=0 && \
+kubectl scale statefulset/camunda-zeebe --replicas=3
+```
 
 ---
 
@@ -40,7 +52,7 @@ helm install camunda camunda/camunda-platform -f camunda-values.yaml --version 1
 ```bash
 kubectl rollout status sts/camunda-elasticsearch-master
 kubectl rollout status --watch --timeout=600s sts/camunda-elasticsearch-master
-kubectl wait pods --all --for=condition=ready
+kubectl wait pods --all --for=condition=ready --timeout 600s
 ```
 
 ---
@@ -58,6 +70,9 @@ Check the logs:
 
 ```bash
 kubectl logs -f $(kubectl get pods --selector=job-name=es-snapshot-minio-job --output=jsonpath='{.items[*].metadata.name}' | awk '{print $1}') 
+
+## check job status
+kubectl wait --for=condition=complete --timeout=60s job/es-snapshot-minio-job
 ```
 
 ---
@@ -68,6 +83,7 @@ kubectl logs -f $(kubectl get pods --selector=job-name=es-snapshot-minio-job --o
 
 ```bash
 kubectl create configmap models --from-file=CamundaProcess.bpmn=./backup/BenchmarkProcess.bpmn
+kubectl get cm models
 ```
 [./backup/BenchmarkProcess.bpmn](./backup/BenchmarkProcess.bpmn)
 
@@ -84,6 +100,9 @@ kubectl apply -f ./backup/zbctl-deploy-job.yaml
 
 ```bash
 kubectl logs -f $(kubectl get pods --selector=job-name=zbctl-deploy --output=jsonpath='{.items[*].metadata.name}' | awk '{print $1}') 
+
+## wait till job ends. 
+kubectl wait --for=condition=complete  --timeout 60s job/zbctl-deploy
 ```
 
 ***
@@ -97,8 +116,9 @@ kubectl create configmap payload --from-file=./backup/payload.json
 
 ```bash
 kubectl apply -f ./backup/benchmark.yaml
+# wait for benchmark to start
 kubectl wait --for=condition=ready pod -l app=benchmark
-sleep 30
+sleep 60
 kubectl delete -f ./backup/benchmark.yaml
 ```
 [./backup/benchmark.yaml](./backup/benchmark.yaml)
@@ -123,7 +143,7 @@ kubectl delete -f ./backup/benchmark.yaml
 ```bash
 kubectl apply -f ./backup/camunda-backup-job.yaml
 ```
-[./backup/camunda-backup-job.yaml][def]
+[./backup/camunda-backup-job.yaml](./backup/camunda-backup-job.yaml)
 ***
 
 ```bash
@@ -137,14 +157,14 @@ kubectl logs -f $(kubectl get pods --selector=job-name=camunda-backup-job --outp
 ```bash
 kubectl apply -f ./backup/zeebe-export-pause.yaml
 ```
-[./backup/zeebe-export-pause.yaml][def]
+[./backup/zeebe-export-pause.yaml](./backup/zeebe-export-pause.yaml)
 *** 
 
 ### Backup of Zeebe Records in ES
 ```bash
 kubectl apply -f ./backup/es-create-snapshot-zeebe.yaml
 ```
-[./backup/es-create-snapshot-zeebe.yaml][def]
+[./backup/es-create-snapshot-zeebe.yaml](./backup/es-create-snapshot-zeebe.yaml)
 ***
 
 ```bash
@@ -157,7 +177,7 @@ kubectl logs -f $(kubectl get pods --selector=job-name=es-create-snapshot-zeebe 
 kubectl apply -f ./backup/zeebe-backup-job.yaml
 ```
 
-[./backup/zeebe-backup-job.yaml][def]
+[./backup/zeebe-backup-job.yaml](./backup/zeebe-backup-job.yaml)
 
 
 ```bash
@@ -170,7 +190,7 @@ kubectl logs -f $(kubectl get pods --selector=job-name=zeebe-backup-job --output
 ```bash
 kubectl apply -f ./backup/zeebe-export-resume.yaml
 ```
-[./backup/zeebe-export-resume.yaml][def]
+[./backup/zeebe-export-resume.yaml](./backup/zeebe-export-resume.yaml)
 
 ***
 
@@ -193,7 +213,7 @@ kubectl delete pvc data-camunda-elasticsearch-master-0 data-camunda-elasticsearc
 ```bash
 helm install camunda camunda/camunda-platform -f camunda-values.yaml --version 10.4.0
 ```
-[camunda-values.yaml][def]
+[camunda-values.yaml](camunda-values.yaml)
 
 ***
 
